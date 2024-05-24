@@ -142,7 +142,7 @@ This flow was designed to take advantage of the S3 trigger system and break each
 
 Create a custom JSON file, then upload it to the `TMP/email_out/json` folder (if you don't have the folder structure yet, set it up). The JSON structure should look like this:
 
-```
+```json
 {
     "from": "name@example.com",
     "to": "name@example.com",
