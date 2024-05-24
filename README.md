@@ -1,15 +1,37 @@
-# How to support the project
 
-<img align="left" style="float: left; margin: 0 10px 0 0; height: 35px;" src="https://github.com/0x4447/0x4447_product_s3_email/blob/0d36bbbcfd47a4342df94c40cff8fa09c9ce8822/aws_marketplace.png?raw=true" alt="AWS Marketplace"></a>
-This solution is free for anyone to use and learn from. If you'd like to see more projects like this one, consider using some of our products from the [AWS Marketplace](https://products.0x4447.com/?utm_medium=internal&utm_source=s3_email) or share them with someone you might think would be interested in using them.
-
-## 📫 S3 Email
+# 📫 S3 Email
 
 This stack was created out of frustration due to the fact that to this day there's no easy way to have a full email server without the overhead of installing and configuring all servers needed to handle incoming and outgoing messages. We wanted something simple, with no interface and no server management, so we came up with S3-Email. This included AWS SES as our email server (receive and send) and S3 as our database and interface. Then we tied everything together with a bit of code via AWS Lambda.
 
 The result is an unmanaged email server with unlimited email addresses that also offers the benefit of easily organizing messages by adding the `+` character to the email names. The `+` is converted to a `/`, which correlates to an object path in S3.
 
-### Endless email addresses
+- [📫 S3 Email](#-s3-email)
+  - [How to support the project](#how-to-support-the-project)
+  - [Endless email addresses](#endless-email-addresses)
+    - [Organizing with a +](#organizing-with-a-)
+  - [DISCLAIMER! 🛑](#disclaimer-)
+  - [How to deploy](#how-to-deploy)
+  - [What will deploy?](#what-will-deploy)
+  - [Auto Deploy](#auto-deploy)
+  - [Manual Work](#manual-work)
+    - [Confirm to SES that you own the domain](#confirm-to-ses-that-you-own-the-domain)
+    - [Enable SES Rule Sets](#enable-ses-rule-sets)
+    - [Attach a user to the IAM Group](#attach-a-user-to-the-iam-group)
+  - [SES Limitations](#ses-limitations)
+  - [How the stack works](#how-the-stack-works)
+    - [How to create an email message](#how-to-create-an-email-message)
+  - [Backup old emails](#backup-old-emails)
+  - [Pricing](#pricing)
+  - [How to work with this project](#how-to-work-with-this-project)
+  - [The End](#the-end)
+  - [Sponsor 🎊](#sponsor-)
+
+## How to support the project
+
+<img align="left" style="float: left; margin: 0 10px 0 0; height: 35px;" src="https://github.com/0x4447/0x4447_product_s3_email/blob/0d36bbbcfd47a4342df94c40cff8fa09c9ce8822/aws_marketplace.png?raw=true" alt="AWS Marketplace"></a>
+This solution is free for anyone to use and learn from. If you'd like to see more projects like this one, consider using some of our products from the [AWS Marketplace](https://products.0x4447.com/?utm_medium=internal&utm_source=s3_email) or share them with someone you might think would be interested in using them.
+
+## Endless email addresses
 
 Once you add and confirm your domain with SES, you can put any string you want in front of the `@`, as long as it conforms to the email address standard. This means that you'll have endless email addresses at your disposal, and you'll be able to organize your life in a way never possible before. For example, you can give each service you sign up for its own special email:
 
