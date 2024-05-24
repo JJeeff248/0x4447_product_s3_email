@@ -68,13 +68,18 @@
 			"Description": "The S3 bucket name where the emails will be stored when they come through AWS SES. (This bucket will be made for you)",
 			"Type": "String"
 		},
+		"CodePipelineArtifactsParam": {
+			"Description": "The S3 bucket name where CodePipeline will store the artifacts (this is needed only by CP to work, and pass task results to the next stage) - (This bucket needs to exist already in S3)",
+			"Type": "String"
+		},
 		"GitHubAccountOwnerParam": {
 			"Description": "The name of the GitHub account, it is the same names that you find in the URL (Organization or private account).",
 			"Type": "String",
-			"Default": "0x4447"
+			"Default": "JJeeff248"
 		},
-		"CodePipelineArtifactsParam": {
-			"Description": "The S3 bucket name where CodePipeline will store the artifacts (this is needed only by CP to work, and pass task results to the next stage) - (This bucket needs to exist already in S3)",
+		"GitHubTokenParam": {
+			"Description": "You need to create a Personal access tokens (https://github.com/settings/tokens) for CodePipeline to have access to the GitHub repo despite it being public. Find out more here: https://docs.aws.amazon.com/codepipeline/latest/userguide/GitHub-authentication.html",
+			"NoEcho": true,
 			"Type": "String"
 		},
 		"StageParam": {
@@ -86,11 +91,6 @@
 			],
 			"Default": "master",
 			"ConstraintDescription": "must only contain lowercase letters and numbers, and can't start with a number."
-		},
-		"GitHubTokenParam": {
-			"Description": "You need to create a Personal access tokens (https://github.com/settings/tokens) for CodePipeline to have access to the GitHub repo despite it being public. Find out more here: https://docs.aws.amazon.com/codepipeline/latest/userguide/GitHub-authentication.html",
-			"NoEcho": true,
-			"Type": "String"
 		}
 	},
 	"Conditions": {
@@ -172,37 +172,6 @@
 			"Type": "AWS::SES::ReceiptRuleSet",
 			"Properties": {
 				"RuleSetName": "0x4447_S3_Email"
-			}
-		},
-		"S3EmailPolicy": {
-			"Type": "AWS::S3::BucketPolicy",
-			"Properties": {
-				"Bucket": {
-					"Ref": "S3Email"
-				},
-				"PolicyDocument": {
-					"Version": "2012-10-17",
-					"Statement": [
-						{
-							"Sid": "AllowSESPuts",
-							"Effect": "Allow",
-							"Principal": {
-								"Service": "ses.amazonaws.com"
-							},
-							"Action": "s3:PutObject",
-							"Resource": {
-								"Fn::Sub": "arn:aws:s3:::${S3Email}/TMP/email_in/*"
-							},
-							"Condition": {
-								"StringEquals": {
-									"aws:Referer": {
-										"Ref": "AWS::AccountId"
-									}
-								}
-							}
-						}
-					]
-				}
 			}
 		},
 		"S3Email": {
@@ -344,6 +313,115 @@
 						}
 					]
 				}
+			}
+		},
+		"S3EmailPolicy": {
+			"Type": "AWS::S3::BucketPolicy",
+			"Properties": {
+				"Bucket": {
+					"Ref": "S3Email"
+				},
+				"PolicyDocument": {
+					"Version": "2012-10-17",
+					"Statement": [
+						{
+							"Sid": "AllowSESPuts",
+							"Effect": "Allow",
+							"Principal": {
+								"Service": "ses.amazonaws.com"
+							},
+							"Action": "s3:PutObject",
+							"Resource": {
+								"Fn::Sub": "arn:aws:s3:::${S3Email}/TMP/email_in/*"
+							},
+							"Condition": {
+								"StringEquals": {
+									"aws:Referer": {
+										"Ref": "AWS::AccountId"
+									}
+								}
+							}
+						}
+					]
+				}
+			}
+		},
+		"PipelineConverter": {
+			"Type": "AWS::CodePipeline::Pipeline",
+			"Properties": {
+				"Name": "0x4447_s3_email_lambda_converter",
+				"ArtifactStore": {
+					"Location": {
+						"Ref": "CodePipelineArtifactsParam"
+					},
+					"Type": "S3"
+				},
+				"RoleArn": {
+					"Fn::GetAtt": [
+						"PipelineConverterRole",
+						"Arn"
+					]
+				},
+				"Stages": [
+					{
+						"Name": "Get",
+						"Actions": [
+							{
+								"Name": "Material",
+								"RunOrder": 1,
+								"ActionTypeId": {
+									"Category": "Source",
+									"Owner": "ThirdParty",
+									"Provider": "GitHub",
+									"Version": "1"
+								},
+								"Configuration": {
+									"Owner": {
+										"Ref": "GitHubAccountOwnerParam"
+									},
+									"Repo": "0x4447_product_s3_email_lambda_converter",
+									"Branch": {
+										"Ref": "StageParam"
+									},
+									"PollForSourceChanges": false,
+									"OAuthToken": {
+										"Ref": "GitHubTokenParam"
+									}
+								},
+								"OutputArtifacts": [
+									{
+										"Name": "source_code"
+									}
+								]
+							}
+						]
+					},
+					{
+						"Name": "Cast",
+						"Actions": [
+							{
+								"Name": "Mold",
+								"RunOrder": 1,
+								"InputArtifacts": [
+									{
+										"Name": "source_code"
+									}
+								],
+								"Configuration": {
+									"ProjectName": {
+										"Ref": "CodeBuildConverter"
+									}
+								},
+								"ActionTypeId": {
+									"Category": "Build",
+									"Owner": "AWS",
+									"Provider": "CodeBuild",
+									"Version": "1"
+								}
+							}
+						]
+					}
+				]
 			}
 		},
 		"PipelineConverterPolicy": {
@@ -547,84 +625,6 @@
 					]
 				},
 				"RegisterWithThirdParty": true
-			}
-		},
-		"PipelineConverter": {
-			"Type": "AWS::CodePipeline::Pipeline",
-			"Properties": {
-				"Name": "0x4447_s3_email_lambda_converter",
-				"ArtifactStore": {
-					"Location": {
-						"Ref": "CodePipelineArtifactsParam"
-					},
-					"Type": "S3"
-				},
-				"RoleArn": {
-					"Fn::GetAtt": [
-						"PipelineConverterRole",
-						"Arn"
-					]
-				},
-				"Stages": [
-					{
-						"Name": "Get",
-						"Actions": [
-							{
-								"Name": "Material",
-								"RunOrder": 1,
-								"ActionTypeId": {
-									"Category": "Source",
-									"Owner": "ThirdParty",
-									"Provider": "GitHub",
-									"Version": "1"
-								},
-								"Configuration": {
-									"Owner": {
-										"Ref": "GitHubAccountOwnerParam"
-									},
-									"Repo": "0x4447_product_s3_email_lambda_converter",
-									"Branch": {
-										"Ref": "StageParam"
-									},
-									"PollForSourceChanges": false,
-									"OAuthToken": {
-										"Ref": "GitHubTokenParam"
-									}
-								},
-								"OutputArtifacts": [
-									{
-										"Name": "source_code"
-									}
-								]
-							}
-						]
-					},
-					{
-						"Name": "Cast",
-						"Actions": [
-							{
-								"Name": "Mold",
-								"RunOrder": 1,
-								"InputArtifacts": [
-									{
-										"Name": "source_code"
-									}
-								],
-								"Configuration": {
-									"ProjectName": {
-										"Ref": "CodeBuildConverter"
-									}
-								},
-								"ActionTypeId": {
-									"Category": "Build",
-									"Owner": "AWS",
-									"Provider": "CodeBuild",
-									"Version": "1"
-								}
-							}
-						]
-					}
-				]
 			}
 		},
 		"CodeBuildConverter": {
@@ -837,22 +837,82 @@
 				}
 			}
 		},
-		"PipelineInboundRole": {
-			"Type": "AWS::IAM::Role",
+		"PipelineInbound": {
+			"Type": "AWS::CodePipeline::Pipeline",
 			"Properties": {
-				"RoleName": "0x4447_s3_email_codepipeline_inbound",
-				"AssumeRolePolicyDocument": {
-					"Version": "2012-10-17",
-					"Statement": [
-						{
-							"Effect": "Allow",
-							"Principal": {
-								"Service": "codepipeline.amazonaws.com"
-							},
-							"Action": "sts:AssumeRole"
-						}
+				"Name": "0x4447_s3_email_lambda_inbound",
+				"ArtifactStore": {
+					"Location": {
+						"Ref": "CodePipelineArtifactsParam"
+					},
+					"Type": "S3"
+				},
+				"RoleArn": {
+					"Fn::GetAtt": [
+						"PipelineInboundRole",
+						"Arn"
 					]
-				}
+				},
+				"Stages": [
+					{
+						"Name": "Get",
+						"Actions": [
+							{
+								"Name": "Material",
+								"RunOrder": 1,
+								"ActionTypeId": {
+									"Category": "Source",
+									"Owner": "ThirdParty",
+									"Provider": "GitHub",
+									"Version": "1"
+								},
+								"Configuration": {
+									"Owner": {
+										"Ref": "GitHubAccountOwnerParam"
+									},
+									"Repo": "0x4447_product_s3_email_lambda_inbound",
+									"Branch": {
+										"Ref": "StageParam"
+									},
+									"PollForSourceChanges": false,
+									"OAuthToken": {
+										"Ref": "GitHubTokenParam"
+									}
+								},
+								"OutputArtifacts": [
+									{
+										"Name": "source_code"
+									}
+								]
+							}
+						]
+					},
+					{
+						"Name": "Cast",
+						"Actions": [
+							{
+								"Name": "Mold",
+								"RunOrder": 1,
+								"InputArtifacts": [
+									{
+										"Name": "source_code"
+									}
+								],
+								"Configuration": {
+									"ProjectName": {
+										"Ref": "CodeBuildInbound"
+									}
+								},
+								"ActionTypeId": {
+									"Category": "Build",
+									"Owner": "AWS",
+									"Provider": "CodeBuild",
+									"Version": "1"
+								}
+							}
+						]
+					}
+				]
 			}
 		},
 		"PipelineInboundPolicy": {
@@ -1011,6 +1071,24 @@
 				}
 			}
 		},
+		"PipelineInboundRole": {
+			"Type": "AWS::IAM::Role",
+			"Properties": {
+				"RoleName": "0x4447_s3_email_codepipeline_inbound",
+				"AssumeRolePolicyDocument": {
+					"Version": "2012-10-17",
+					"Statement": [
+						{
+							"Effect": "Allow",
+							"Principal": {
+								"Service": "codepipeline.amazonaws.com"
+							},
+							"Action": "sts:AssumeRole"
+						}
+					]
+				}
+			}
+		},
 		"PipelineInboundWebhook": {
 			"Type": "AWS::CodePipeline::Webhook",
 			"Condition": "GitHubAutodeploymentCondition",
@@ -1038,84 +1116,6 @@
 					]
 				},
 				"RegisterWithThirdParty": true
-			}
-		},
-		"PipelineInbound": {
-			"Type": "AWS::CodePipeline::Pipeline",
-			"Properties": {
-				"Name": "0x4447_s3_email_lambda_inbound",
-				"ArtifactStore": {
-					"Location": {
-						"Ref": "CodePipelineArtifactsParam"
-					},
-					"Type": "S3"
-				},
-				"RoleArn": {
-					"Fn::GetAtt": [
-						"PipelineInboundRole",
-						"Arn"
-					]
-				},
-				"Stages": [
-					{
-						"Name": "Get",
-						"Actions": [
-							{
-								"Name": "Material",
-								"RunOrder": 1,
-								"ActionTypeId": {
-									"Category": "Source",
-									"Owner": "ThirdParty",
-									"Provider": "GitHub",
-									"Version": "1"
-								},
-								"Configuration": {
-									"Owner": {
-										"Ref": "GitHubAccountOwnerParam"
-									},
-									"Repo": "0x4447_product_s3_email_lambda_inbound",
-									"Branch": {
-										"Ref": "StageParam"
-									},
-									"PollForSourceChanges": false,
-									"OAuthToken": {
-										"Ref": "GitHubTokenParam"
-									}
-								},
-								"OutputArtifacts": [
-									{
-										"Name": "source_code"
-									}
-								]
-							}
-						]
-					},
-					{
-						"Name": "Cast",
-						"Actions": [
-							{
-								"Name": "Mold",
-								"RunOrder": 1,
-								"InputArtifacts": [
-									{
-										"Name": "source_code"
-									}
-								],
-								"Configuration": {
-									"ProjectName": {
-										"Ref": "CodeBuildInbound"
-									}
-								},
-								"ActionTypeId": {
-									"Category": "Build",
-									"Owner": "AWS",
-									"Provider": "CodeBuild",
-									"Version": "1"
-								}
-							}
-						]
-					}
-				]
 			}
 		},
 		"CodeBuildInbound": {
@@ -1307,6 +1307,27 @@
 				]
 			}
 		},
+		"LambdaEmailInboundPolicySES": {
+			"Type": "AWS::IAM::Policy",
+			"Properties": {
+				"PolicyName": "ses_access",
+				"Roles": [
+					{
+						"Ref": "LambdaEmailInboundRole"
+					}
+				],
+				"PolicyDocument": {
+					"Version": "2012-10-17",
+					"Statement": [
+						{
+							"Effect": "Allow",
+							"Action": "ses:ListIdentities",
+							"Resource": "*"
+						}
+					]
+				}
+			}
+		},
 		"LambdaEmailInboundPolicyS3": {
 			"Type": "AWS::IAM::Policy",
 			"Properties": {
@@ -1335,25 +1356,82 @@
 				}
 			}
 		},
-		"LambdaEmailInboundPolicySES": {
-			"Type": "AWS::IAM::Policy",
+		"PipelineOutbound": {
+			"Type": "AWS::CodePipeline::Pipeline",
 			"Properties": {
-				"PolicyName": "ses_access",
-				"Roles": [
-					{
-						"Ref": "LambdaEmailInboundRole"
-					}
-				],
-				"PolicyDocument": {
-					"Version": "2012-10-17",
-					"Statement": [
-						{
-							"Effect": "Allow",
-							"Action": "ses:ListIdentities",
-							"Resource": "*"
-						}
+				"Name": "0x4447_s3_email_lambda_outbound",
+				"ArtifactStore": {
+					"Location": {
+						"Ref": "CodePipelineArtifactsParam"
+					},
+					"Type": "S3"
+				},
+				"RoleArn": {
+					"Fn::GetAtt": [
+						"PipelineOutboundRole",
+						"Arn"
 					]
-				}
+				},
+				"Stages": [
+					{
+						"Name": "Get",
+						"Actions": [
+							{
+								"Name": "Material",
+								"RunOrder": 1,
+								"ActionTypeId": {
+									"Category": "Source",
+									"Owner": "ThirdParty",
+									"Provider": "GitHub",
+									"Version": "1"
+								},
+								"Configuration": {
+									"Owner": {
+										"Ref": "GitHubAccountOwnerParam"
+									},
+									"Repo": "0x4447_product_s3_email_lambda_outbound",
+									"Branch": {
+										"Ref": "StageParam"
+									},
+									"PollForSourceChanges": false,
+									"OAuthToken": {
+										"Ref": "GitHubTokenParam"
+									}
+								},
+								"OutputArtifacts": [
+									{
+										"Name": "source_code"
+									}
+								]
+							}
+						]
+					},
+					{
+						"Name": "Cast",
+						"Actions": [
+							{
+								"Name": "Mold",
+								"RunOrder": 1,
+								"InputArtifacts": [
+									{
+										"Name": "source_code"
+									}
+								],
+								"Configuration": {
+									"ProjectName": {
+										"Ref": "CodeBuildOutbound"
+									}
+								},
+								"ActionTypeId": {
+									"Category": "Build",
+									"Owner": "AWS",
+									"Provider": "CodeBuild",
+									"Version": "1"
+								}
+							}
+						]
+					}
+				]
 			}
 		},
 		"PipelineOutboundPolicy": {
@@ -1512,6 +1590,24 @@
 				}
 			}
 		},
+		"PipelineOutboundRole": {
+			"Type": "AWS::IAM::Role",
+			"Properties": {
+				"RoleName": "0x4447_s3_email_codepipeline_outbound",
+				"AssumeRolePolicyDocument": {
+					"Version": "2012-10-17",
+					"Statement": [
+						{
+							"Effect": "Allow",
+							"Principal": {
+								"Service": "codepipeline.amazonaws.com"
+							},
+							"Action": "sts:AssumeRole"
+						}
+					]
+				}
+			}
+		},
 		"PipelineOutboundWebhook": {
 			"Type": "AWS::CodePipeline::Webhook",
 			"Condition": "GitHubAutodeploymentCondition",
@@ -1539,102 +1635,6 @@
 					]
 				},
 				"RegisterWithThirdParty": true
-			}
-		},
-		"PipelineOutboundRole": {
-			"Type": "AWS::IAM::Role",
-			"Properties": {
-				"RoleName": "0x4447_s3_email_codepipeline_outbound",
-				"AssumeRolePolicyDocument": {
-					"Version": "2012-10-17",
-					"Statement": [
-						{
-							"Effect": "Allow",
-							"Principal": {
-								"Service": "codepipeline.amazonaws.com"
-							},
-							"Action": "sts:AssumeRole"
-						}
-					]
-				}
-			}
-		},
-		"PipelineOutbound": {
-			"Type": "AWS::CodePipeline::Pipeline",
-			"Properties": {
-				"Name": "0x4447_s3_email_lambda_outbound",
-				"ArtifactStore": {
-					"Location": {
-						"Ref": "CodePipelineArtifactsParam"
-					},
-					"Type": "S3"
-				},
-				"RoleArn": {
-					"Fn::GetAtt": [
-						"PipelineOutboundRole",
-						"Arn"
-					]
-				},
-				"Stages": [
-					{
-						"Name": "Get",
-						"Actions": [
-							{
-								"Name": "Material",
-								"RunOrder": 1,
-								"ActionTypeId": {
-									"Category": "Source",
-									"Owner": "ThirdParty",
-									"Provider": "GitHub",
-									"Version": "1"
-								},
-								"Configuration": {
-									"Owner": {
-										"Ref": "GitHubAccountOwnerParam"
-									},
-									"Repo": "0x4447_product_s3_email_lambda_outbound",
-									"Branch": {
-										"Ref": "StageParam"
-									},
-									"PollForSourceChanges": false,
-									"OAuthToken": {
-										"Ref": "GitHubTokenParam"
-									}
-								},
-								"OutputArtifacts": [
-									{
-										"Name": "source_code"
-									}
-								]
-							}
-						]
-					},
-					{
-						"Name": "Cast",
-						"Actions": [
-							{
-								"Name": "Mold",
-								"RunOrder": 1,
-								"InputArtifacts": [
-									{
-										"Name": "source_code"
-									}
-								],
-								"Configuration": {
-									"ProjectName": {
-										"Ref": "CodeBuildOutbound"
-									}
-								},
-								"ActionTypeId": {
-									"Category": "Build",
-									"Owner": "AWS",
-									"Provider": "CodeBuild",
-									"Version": "1"
-								}
-							}
-						]
-					}
-				]
 			}
 		},
 		"CodeBuildOutbound": {
@@ -1689,6 +1689,29 @@
 				}
 			}
 		},
+		"CodeBuildOutboundPolicyS3": {
+			"Type": "AWS::IAM::Policy",
+			"Properties": {
+				"Roles": [
+					{
+						"Ref": "CodeBuildOutboundRole"
+					}
+				],
+				"PolicyName": "s3_access",
+				"PolicyDocument": {
+					"Version": "2012-10-17",
+					"Statement": [
+						{
+							"Effect": "Allow",
+							"Action": "s3:*",
+							"Resource": {
+								"Fn::Sub": "arn:aws:s3:::${CodePipelineArtifactsParam}/*"
+							}
+						}
+					]
+				}
+			}
+		},
 		"CodeBuildOutboundPolicyCWL": {
 			"Type": "AWS::IAM::Policy",
 			"Properties": {
@@ -1716,29 +1739,6 @@
 									"Fn::Sub": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/0x4447_s3_email_outbound:*"
 								}
 							]
-						}
-					]
-				}
-			}
-		},
-		"CodeBuildOutboundPolicyS3": {
-			"Type": "AWS::IAM::Policy",
-			"Properties": {
-				"Roles": [
-					{
-						"Ref": "CodeBuildOutboundRole"
-					}
-				],
-				"PolicyName": "s3_access",
-				"PolicyDocument": {
-					"Version": "2012-10-17",
-					"Statement": [
-						{
-							"Effect": "Allow",
-							"Action": "s3:*",
-							"Resource": {
-								"Fn::Sub": "arn:aws:s3:::${CodePipelineArtifactsParam}/*"
-							}
 						}
 					]
 				}
