@@ -5,26 +5,27 @@ This stack was created out of frustration due to the fact that to this day there
 
 The result is an unmanaged email server with unlimited email addresses that also offers the benefit of easily organizing messages by adding the `+` character to the email names. The `+` is converted to a `/`, which correlates to an object path in S3.
 
-- [📫 S3 Email](#-s3-email)
-  - [How to support the project](#how-to-support-the-project)
-  - [Endless email addresses](#endless-email-addresses)
-    - [Organizing with a +](#organizing-with-a-)
-  - [DISCLAIMER! 🛑](#disclaimer-)
-  - [How to deploy](#how-to-deploy)
-  - [What will deploy?](#what-will-deploy)
-  - [Auto Deploy](#auto-deploy)
-  - [Manual Work](#manual-work)
-    - [Confirm to SES that you own the domain](#confirm-to-ses-that-you-own-the-domain)
-    - [Enable SES Rule Sets](#enable-ses-rule-sets)
-    - [Attach a user to the IAM Group](#attach-a-user-to-the-iam-group)
-  - [SES Limitations](#ses-limitations)
-  - [How the stack works](#how-the-stack-works)
-    - [How to create an email message](#how-to-create-an-email-message)
-  - [Backup old emails](#backup-old-emails)
-  - [Pricing](#pricing)
-  - [How to work with this project](#how-to-work-with-this-project)
-  - [The End](#the-end)
-  - [Sponsor 🎊](#sponsor-)
+## Table of Contents
+
+- [How to support the project](#how-to-support-the-project)
+- [Endless email addresses](#endless-email-addresses)
+  - [Organizing with a +](#organizing-with-a-)
+- [DISCLAIMER! 🛑](#disclaimer-)
+- [How to deploy](#how-to-deploy)
+- [What will deploy?](#what-will-deploy)
+- [Auto Deploy](#auto-deploy)
+- [Manual Work](#manual-work)
+  - [Confirm to SES that you own the domain](#confirm-to-ses-that-you-own-the-domain)
+  - [Enable SES Rule Sets](#enable-ses-rule-sets)
+  - [Attach a user to the IAM Group](#attach-a-user-to-the-iam-group)
+- [SES Limitations](#ses-limitations)
+- [How the stack works](#how-the-stack-works)
+  - [How to create an email message](#how-to-create-an-email-message)
+- [Backup old emails](#backup-old-emails)
+- [Pricing](#pricing)
+- [How to work with this project](#how-to-work-with-this-project)
+- [The End](#the-end)
+- [Sponsor 🎊](#sponsor-)
 
 ## How to support the project
 
