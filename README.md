@@ -1,6 +1,6 @@
 # How to support the project
 
-<img align="left" style="float: left; margin: 0 10px 0 0; height: 35px;" src="https://github.com/0x4447/0x4447_product_s3_email/blob/0d36bbbcfd47a4342df94c40cff8fa09c9ce8822/aws_marketplace.png?raw=true"></a>
+<img align="left" style="float: left; margin: 0 10px 0 0; height: 35px;" src="https://github.com/0x4447/0x4447_product_s3_email/blob/0d36bbbcfd47a4342df94c40cff8fa09c9ce8822/aws_marketplace.png?raw=true" alt="AWS Marketplace"></a>
 This solution is free for anyone to use and learn from. If you’d like to see more projects like this one, consider using some of our products from the [AWS Marketplace](https://products.0x4447.com/?utm_medium=internal&utm_source=s3_email) or share them with someone you might think would be interested in using them.
 
 # 📫 S3 Email
@@ -56,7 +56,7 @@ This stack is available to anyone at no cost, but on an as-is basis. 0x4447 LLC 
 # How to deploy
 
 <a target="_blank" href="https://console.aws.amazon.com/cloudformation/home#/stacks/new?stackName=zer0x4447-S3-Email&templateURL=https://s3.amazonaws.com/0x4447-drive-cloudformation/s3-email.json">
-<img align="left" style="float: left; margin: 0 10px 0 0;" src="https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png"></a>
+<img align="left" style="float: left; margin: 0 10px 0 0;" src="https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png" alt="CloudFormation Launch Stack"></a>
 
 All you need to do to deploy this stack is click the button to the left and follow the instructions that CloudFormation provides in your AWS Dashboard. Alternatively you can download the CF file from [here](https://s3.amazonaws.com/0x4447-drive-cloudformation/s3-email.json).
 
