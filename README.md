@@ -13,35 +13,35 @@ The result is an unmanaged email server with unlimited email addresses that also
 
 Once you add and confirm your domain with SES, you can put any string you want in front of the `@`, as long as it conforms to the email address standard. This means that you'll have endless email addresses at your disposal, and you'll be able to organize your life in a way never possible before. For example, you can give each service you sign up for its own special email:
 
-- facebook@example.com
-- instagram@example.com
-- linkedin@example.com
+- <facebook@example.com>
+- <instagram@example.com>
+- <linkedin@example.com>
 - etc.
 
 ### Organizing with a +
 
 With that said, you can organize your emails with the `+` character in this way:
 
-- accounts+social+facebook@example.com
-- accounts+social+instagram@example.com
-- accounts+social+linkedin@example.com
-- accounts+travel+car+hertz@example.com
-- accounts+travel+air+jetblue@example.com
-- accounts+money+paypal@example.com
+- <accounts+social+facebook@example.com>
+- <accounts+social+instagram@example.com>
+- <accounts+social+linkedin@example.com>
+- <accounts+travel+car+hertz@example.com>
+- <accounts+travel+air+jetblue@example.com>
+- <accounts+money+paypal@example.com>
 - etc.
 
 When dealing with clients we came up with this folder structure:
 
-- clients+company_name+aws+account_name@example.com
-- clients+company_name+stripe@example.com
-- clients+company_name+sentry@example.com
-- clients+company_name+heroku@example.com
+- <clients+company_name+aws+account_name@example.com>
+- <clients+company_name+stripe@example.com>
+- <clients+company_name+sentry@example.com>
+- <clients+company_name+heroku@example.com>
 - etc.
 
 For all sorts of alerts we like to group them like this
 
-- alarms+company_name+aws+account_name+alarm_type@example.com
-- alarms+company_name+sentry+alarm_type@example.com
+- <alarms+company_name+aws+account_name+alarm_type@example.com>
+- <alarms+company_name+sentry+alarm_type@example.com>
 
 - etc.
 
@@ -184,4 +184,4 @@ If you enjoyed this project, please consider giving it a 🌟. And check out our
 
 ## Sponsor 🎊
 
-This project is brought to you by 0x4447 LLC, a software company specializing in building custom solutions on top of AWS. Follow this link to learn more: https://0x4447.com. Alternatively, send an email to [hello@0x4447.email](mailto:hello@0x4447.email?Subject=Hello%20From%20Repo&Body=Hi%2C%0A%0AMy%20name%20is%20NAME%2C%20and%20I%27d%20like%20to%20get%20in%20touch%20with%20someone%20at%200x4447.%0A%0AI%27d%20like%20to%20discuss%20the%20following%20topics%3A%0A%0A-%20LIST_OF_TOPICS_TO_DISCUSS%0A%0ASome%20useful%20information%3A%0A%0A-%20My%20full%20name%20is%3A%20FIRST_NAME%20LAST_NAME%0A-%20My%20time%20zone%20is%3A%20TIME_ZONE%0A-%20My%20working%20hours%20are%20from%3A%20TIME%20till%20TIME%0A-%20My%20company%20name%20is%3A%20COMPANY%20NAME%0A-%20My%20company%20website%20is%3A%20https%3A%2F%2F%0A%0ABest%20regards.).
+This project is brought to you by 0x4447 LLC, a software company specializing in building custom solutions on top of AWS. Follow this link to learn more: <https://0x4447.com>. Alternatively, send an email to [hello@0x4447.email](mailto:hello@0x4447.email?Subject=Hello%20From%20Repo&Body=Hi%2C%0A%0AMy%20name%20is%20NAME%2C%20and%20I%27d%20like%20to%20get%20in%20touch%20with%20someone%20at%200x4447.%0A%0AI%27d%20like%20to%20discuss%20the%20following%20topics%3A%0A%0A-%20LIST_OF_TOPICS_TO_DISCUSS%0A%0ASome%20useful%20information%3A%0A%0A-%20My%20full%20name%20is%3A%20FIRST_NAME%20LAST_NAME%0A-%20My%20time%20zone%20is%3A%20TIME_ZONE%0A-%20My%20working%20hours%20are%20from%3A%20TIME%20till%20TIME%0A-%20My%20company%20name%20is%3A%20COMPANY%20NAME%0A-%20My%20company%20website%20is%3A%20https%3A%2F%2F%0A%0ABest%20regards.).
