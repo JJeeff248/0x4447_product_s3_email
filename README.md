@@ -49,7 +49,7 @@ This groups all emails in the corresponding folder by replacing the `+` with a `
 
 > Basically, receive and send email with some skills.
 
-## DISCLAIMER!
+## DISCLAIMER! 🛑
 
 This stack is available to anyone at no cost but on an as-is basis. 0x4447 LLC is not responsible for damages or costs of any kind that may occur when you use the stack. You take full responsibility when you use it.
 
