@@ -1,0 +1,58 @@
+name: Build and Upload
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - '01_Description/**'
+      - '02_Metadata/**'
+      - '03_Parameters/**'
+      - '05_Conditions/**'
+      - '07_Ressources/**'
+      - '.github/workflows/**'
+
+env:
+  BUCKET_NAME: "jjeeff248-cf-templates"
+  AWS_REGION: "ap-southeast-2"
+  FILE_NAME: "S3_Email_Template.json"
+
+permissions:
+  id-token: write
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      
+      - name: Install dependencies
+        run: npm i @0x4447/grapes
+
+      - name: Build
+        run: npx grapes -s .
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4.0.2
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Upload to S3
+        run: aws s3 cp CloudFormation.json s3://$BUCKET_NAME/$FILE_NAME
+
+      - name: Update template file in repo
+        run: |
+          git config --global user.email "${{ secrets.GIT_EMAIL }}"
+          git config --global user.name "${{ secrets.GIT_NAME }}"
+          git add CloudFormation.json
+          git commit -m "Auto update CloudFormation.json"
+          git push
