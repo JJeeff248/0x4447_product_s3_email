@@ -3,7 +3,7 @@
 <img align="left" style="float: left; margin: 0 10px 0 0; height: 35px;" src="https://github.com/0x4447/0x4447_product_s3_email/blob/0d36bbbcfd47a4342df94c40cff8fa09c9ce8822/aws_marketplace.png?raw=true" alt="AWS Marketplace"></a>
 This solution is free for anyone to use and learn from. If you’d like to see more projects like this one, consider using some of our products from the [AWS Marketplace](https://products.0x4447.com/?utm_medium=internal&utm_source=s3_email) or share them with someone you might think would be interested in using them.
 
-# 📫 S3 Email
+## 📫 S3 Email
 
 This stack was created out of frustration due to the fact that to this day there's no easy way to have a full email server without the overhead of installing and configuring all servers needed to handle incoming and outgoing messages. We wanted something simple, with no interface and no server management, so we came up with S3-Email. This included AWS SES as our email server (receive and send) and S3 as our database and interface. Then we tied everything together with a bit of code via AWS Lambda.
 
@@ -49,18 +49,18 @@ This groups all emails in the corresponding folder by replacing the `+` with a `
 
 > Basically, receive and send email with some skills.
 
-# DISCLAIMER!
+## DISCLAIMER!
 
 This stack is available to anyone at no cost, but on an as-is basis. 0x4447 LLC is not responsible for damages or costs of any kind that may occur when you use the stack. You take full responsibility when you use it.
 
-# How to deploy
+## How to deploy
 
 <a target="_blank" href="https://console.aws.amazon.com/cloudformation/home#/stacks/new?stackName=zer0x4447-S3-Email&templateURL=https://s3.amazonaws.com/0x4447-drive-cloudformation/s3-email.json">
 <img align="left" style="float: left; margin: 0 10px 0 0;" src="https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png" alt="CloudFormation Launch Stack"></a>
 
 All you need to do to deploy this stack is click the button to the left and follow the instructions that CloudFormation provides in your AWS Dashboard. Alternatively you can download the CF file from [here](https://s3.amazonaws.com/0x4447-drive-cloudformation/s3-email.json).
 
-# What will deploy?
+## What will deploy?
 
 ![S3-Email Diagram](https://raw.githubusercontent.com/0x4447/0x4447-product-s3-email/assets/diagram.png)
 
@@ -77,14 +77,14 @@ The stack takes advantage of AWS S3, AWS SES, AWS Lambda, and the AWS Trigger sy
 
 All project resources can be found [here](https://github.com/topics/0x4447-product-s3-email).
 
-# Auto deploy
+## Auto deploy
 
 The stack is set up in a such a way that any time new code is pushed to a selected branch, the CodePipeline picks up the change and updates the Lambda for you. These are the available branches:
 
 - **master**: the latest stable code
 - **development**: unstable code that we test in our test environment - we don't recommend that you use this branch
 
-# Manual work
+## Manual work
 
 Keep in mind that when you deploy, everything may not work right out of the box.
 
@@ -112,14 +112,14 @@ Deployment creates SES `rule sets`. This should be enabled by default on fresh A
 
 After the stack is deployed you'll get a IAM Group with a policy attached that will give a user using it the bare minimum to access to the S3-Bucket to read and create emails.
 
-# SES Limitations
+## SES Limitations
 
 There are two major limitations with SES:
 
 1. For security reasons, AWS defaults to 200 emails sent per 24 hour period at a rate of 1 email/second. If you need to send more than that, you'll need to ask AWS to increase your limit.
 1. By default, you can't send emails to unverified addresses. If you'd like to be able to send (as opposed to just receiving), you'll need to reach out to AWS to remove this limitation from your account.
 
-# How the stack works
+## How the stack works
 
 **Receiving email**:
 
@@ -154,7 +154,7 @@ Create a custom JSON file, then upload it to the `TMP/email_out/json` folder (if
 
 Remember that the `from` field must contain the domain you added to SES. You won't be able to send emails from unverified domains.
 
-# Backup old emails
+## Backup old emails
 
 A bonus feature of this stack is the possibility to process manually uploaded emails. This is possible thanks to the event driven nature of the stack. Just upload the raw email in the `TMP/email_in` folder, and your emails will be processed automatically.
 
@@ -162,7 +162,7 @@ The only prerequisite is that the email file needs to be the raw representation 
 
 Which means you can just upload those files straight up to the S3 bucket.
 
-# Pricing
+## Pricing
 
 All resources deployed via this stack will potentially cost you money. But you'd have to do the following for this to happen:
 
@@ -174,11 +174,11 @@ All resources deployed via this stack will potentially cost you money. But you'd
 
 The only payment you'll encounter from Day One is an S3 storage fee for emails and CodePipeline artifacts.
 
-# How to work with this project
+## How to work with this project
 
 When you want to deploy the stack, the only file you should be interested in is the `CloudFormation.json` file. If you'd like to modify the stack, we recommend that you use the [Grapes framework](https://github.com/0x4447/0x4447-cli-node-grapes), which was designed to make it easier to work with the CloudFormation file. If you'd like to keep your sanity, never edit the main CF file 🤪.
 
-# The End
+## The End
 
 If you enjoyed this project, please consider giving it a 🌟. And check out our [0x4447 GitHub account](https://github.com/0x4447), where you'll find additional resources you might find useful or interesting.
 
